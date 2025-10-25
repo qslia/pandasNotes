@@ -232,3 +232,137 @@ Your solution doesn't need `aggfunc` **because**:
 ---
 
 If you want, I can show a scenario where using `pivot()` breaks, but `pivot_table()` solves it 👍
+
+<br><br><br>
+`.reindex(columns=months)` is a Pandas method used to **force the DataFrame** to contain exactly the columns you specify, **in that exact order** — even if some columns are missing.
+
+---
+
+# ✅ Where you saw it:
+
+```python
+df = department.pivot_table(...)
+df = df.reindex(columns=months)
+```
+
+---
+
+# ✅ What does it do?
+
+It:
+
+### 1. **Adds missing columns**
+
+If the pivoted result does **not** include some month columns (because they don’t exist in the data), `.reindex()` will create them and fill them with:
+
+```
+NaN
+```
+
+Example:
+
+Pivot result columns:
+
+```
+['Jan', 'Feb', 'Mar']
+```
+
+But you reindex with:
+
+```
+['Jan','Feb','Mar','Apr','May',...,'Dec']
+```
+
+`.reindex()` will add:
+
+```
+Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
+```
+
+---
+
+### 2. **Ensures column order**
+
+Pivot might give months in alphabetical order:
+
+```
+['Apr', 'Feb', 'Jan']
+```
+
+`.reindex(columns=months)` will reorder into your desired order:
+
+```
+['Jan', 'Feb', 'Mar', ...]
+```
+
+---
+
+### 3. **Keeps only these columns**
+
+If extra columns appear, they are removed.
+
+---
+
+# 🔍 Summary of behavior
+
+| Behavior        | Result           |
+| --------------- | ---------------- |
+| Missing columns | Added with `NaN` |
+| Wrong order     | Re-ordered       |
+| Extra columns   | Removed          |
+
+---
+
+# ✅ Example
+
+```python
+df = pd.DataFrame({
+    'id':[1,2],
+    'Jan':[100,200],
+    'Mar':[300,400]
+})
+
+months = ['Jan','Feb','Mar','Apr']
+df = df.reindex(columns=months)
+```
+
+Result:
+
+| Jan | Feb | Mar | Apr |
+| --- | --- | --- | --- |
+| 100 | NaN | 300 | NaN |
+| 200 | NaN | 400 | NaN |
+
+---
+
+# ✅ Why LeetCode problems use it
+
+Because input **might not contain all months**, but the output format **forces all 12**.
+
+So `.reindex(columns=months)` guarantees:
+
+| Jan | Feb | ... | Dec |
+| --- | --- | --- | --- |
+| val | val | …   | NaN |
+
+---
+
+# 🤔 What if `.reindex()` were NOT used?
+
+Your DataFrame would:
+
+* have missing columns
+* fail column ordering tests
+* cause grading mismatches
+
+---
+
+# 🧠 Mental Model
+
+Think of `.reindex(columns=months)` as:
+
+> “Make sure the DataFrame has exactly this set of columns, in this order — create missing ones as NaN.”
+
+---
+
+Let me know if you want `.reindex()` examples for **rows** too — it's just as useful!
